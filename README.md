@@ -453,7 +453,7 @@ http://localhost:5173
 Repositorio público de GitHub:
 
 ```text
-<URL_DEL_REPOSITORIO>
+https://github.com/LucasZupan/TPI_FOOD_STORE
 ```
 
 ---
