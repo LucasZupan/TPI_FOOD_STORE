@@ -1,0 +1,264 @@
+@baseUrl = http://127.0.0.1:8000
+
+# IMPORTANTE:
+# 1) Ejecutar primero CREAR CATEGORIA y mirar el id devuelto.
+# 2) Ejecutar CREAR PRODUCTO y mirar el id devuelto.
+# 3) Colocar esos valores aca abajo.
+
+@categoriaId = 1
+@productoId = 1
+
+
+### =========================================================
+### CATEGORIAS
+### =========================================================
+
+
+### 1. CREAR CATEGORIA
+### Esperado: 201 Created
+
+POST {{baseUrl}}/categorias/
+Content-Type: application/json
+
+{
+  "nombre": "Tecnologia",
+  "descripcion": "Productos tecnologicos"
+}
+
+
+### 2. LISTAR CATEGORIAS
+### Esperado: 200 OK
+
+GET {{baseUrl}}/categorias/
+
+
+### 3. OBTENER CATEGORIA POR ID
+### Esperado: 200 OK
+
+GET {{baseUrl}}/categorias/{{categoriaId}}
+
+
+### 4. ACTUALIZAR CATEGORIA
+### Esperado: 200 OK
+
+PUT {{baseUrl}}/categorias/{{categoriaId}}
+Content-Type: application/json
+
+{
+  "nombre": "Tecnologia y Electronica",
+  "descripcion": "Productos tecnologicos y electronicos"
+}
+
+
+### 5. CATEGORIA INEXISTENTE
+### Esperado: 404 Not Found
+
+GET {{baseUrl}}/categorias/999999
+
+
+### =========================================================
+### PRODUCTOS
+### =========================================================
+
+
+### 6. CREAR PRODUCTO
+### Esperado: 201 Created
+
+POST {{baseUrl}}/productos/
+Content-Type: application/json
+
+{
+  "nombre": "Notebook Lenovo",
+  "descripcion": "Notebook para uso profesional",
+  "precio_base": "850000",
+  "imagen_url": [
+    "https://ejemplo.com/notebook1.jpg",
+    "https://ejemplo.com/notebook2.jpg"
+  ],
+  "disponible": true
+}
+
+
+### 7. LISTAR PRODUCTOS
+### Esperado: 200 OK
+
+GET {{baseUrl}}/productos/
+
+
+### 8. OBTENER PRODUCTO POR ID
+### Esperado: 200 OK
+
+GET {{baseUrl}}/productos/{{productoId}}
+
+
+### 9. ACTUALIZAR PRODUCTO
+### Esperado: 200 OK
+
+PUT {{baseUrl}}/productos/{{productoId}}
+Content-Type: application/json
+
+{
+  "nombre": "Notebook Lenovo ThinkPad",
+  "descripcion": "Notebook profesional actualizada",
+  "precio_base": "900000",
+  "imagen_url": [
+    "https://ejemplo.com/thinkpad.jpg"
+  ],
+  "disponible": true
+}
+
+
+### 10. PRODUCTO INEXISTENTE
+### Esperado: 404 Not Found
+
+GET {{baseUrl}}/productos/999999
+
+
+### =========================================================
+### PRODUCTO - CATEGORIA
+### =========================================================
+
+
+### 11. CREAR RELACION PRODUCTO-CATEGORIA
+### Esperado: 201 Created
+
+POST {{baseUrl}}/producto-categorias/
+Content-Type: application/json
+
+{
+  "producto_id": {{productoId}},
+  "categoria_id": {{categoriaId}}
+}
+
+
+### 12. LISTAR RELACIONES
+### Esperado: 200 OK
+
+GET {{baseUrl}}/producto-categorias/
+
+
+### 13. OBTENER RELACION
+### Esperado: 200 OK
+
+GET {{baseUrl}}/producto-categorias/{{productoId}}/{{categoriaId}}
+
+
+### 14. RELACION DUPLICADA
+### Ejecutar DESPUES de crear la relacion del punto 11
+### Esperado: 409 Conflict
+
+POST {{baseUrl}}/producto-categorias/
+Content-Type: application/json
+
+{
+  "producto_id": {{productoId}},
+  "categoria_id": {{categoriaId}}
+}
+
+
+### 15. RELACION INEXISTENTE
+### Esperado: 404 Not Found
+
+GET {{baseUrl}}/producto-categorias/999999/999999
+
+
+### =========================================================
+### ELIMINACIONES
+### DEJAR ESTAS PRUEBAS PARA EL FINAL
+### =========================================================
+
+
+### 16. ELIMINAR RELACION
+### Esperado: 204 No Content
+
+DELETE {{baseUrl}}/producto-categorias/{{productoId}}/{{categoriaId}}
+
+
+### 17. ELIMINAR PRODUCTO
+### Esperado: 204 No Content
+
+DELETE {{baseUrl}}/productos/{{productoId}}
+
+
+### 18. ELIMINAR CATEGORIA
+### Esperado: 204 No Content
+
+DELETE {{baseUrl}}/categorias/{{categoriaId}}
+
+
+### ========================================================
+### PEDIDOS - CREAR PEDIDO
+### ========================================================
+
+# @name crearPedido
+POST http://127.0.0.1:8000/pedido
+Content-Type: application/json
+
+{
+  "usuario_id": 1,
+  "direccion_id": null,
+  "estado_codigo": "PENDIENTE",
+  "forma_pago_codigo": "EFECTIVO",
+  "descuento": 0,
+  "costo_envio": 500,
+  "notas": "Pedido creado desde REST Client",
+  "detalles": [
+    {
+      "producto_id": 2,
+      "cantidad": 2,
+      "personalizacion": null
+    }
+  ]
+}
+
+
+### ========================================================
+### PEDIDOS - LISTAR TODOS
+### ========================================================
+
+GET http://127.0.0.1:8000/pedido
+
+
+### ========================================================
+### PEDIDOS - OBTENER POR ID
+### ========================================================
+
+GET http://127.0.0.1:8000/pedido/{{crearPedido.response.body.$.id}}
+
+
+### ========================================================
+### PEDIDOS - ACTUALIZAR ESTADO
+### ========================================================
+
+PUT http://127.0.0.1:8000/pedido/{{crearPedido.response.body.$.id}}
+Content-Type: application/json
+
+{
+  "estado_codigo": "CONFIRMADO"
+}
+
+
+### ========================================================
+### PEDIDOS - PRUEBA ERROR 422 SIN DETALLES
+### ========================================================
+
+POST http://127.0.0.1:8000/pedido
+Content-Type: application/json
+
+{
+  "usuario_id": 1,
+  "direccion_id": null,
+  "estado_codigo": "PENDIENTE",
+  "forma_pago_codigo": "EFECTIVO",
+  "descuento": 0,
+  "costo_envio": 0,
+  "notas": "Este pedido debe fallar",
+  "detalles": []
+}
+
+
+### ========================================================
+### PEDIDOS - ELIMINAR
+### ========================================================
+
+DELETE http://127.0.0.1:8000/pedido/{{crearPedido.response.body.$.id}}
